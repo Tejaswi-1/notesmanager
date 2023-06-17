@@ -4,11 +4,23 @@ from flask_session import Session
 from key import secret_key,salt
 from itsdangerous import URLSafeTimedSerializer
 from stoken import token
+import os
 from cmail import sendmail
 app=Flask(__name__)
 app.secret_key=secret_key
 app.config['SESSION_TYPE']='filesystem'
-mydb=mysql.connector.connect(host="localhost",user="root",password="Teja@2003",db="form")
+#mydb=mysql.connector.connect(host="localhost",user="root",password="Teja@2003",db="form")
+user=os.environ.get('RDS_USERNAME')
+db=os.environ.get('RDS_DB_NAME')
+password=os.environ.get('RDS_PASSWORD')
+host=os.environ.get('RDS_HOSTNAME')
+port=os.environ.get('RDS_PORT')
+with mysql.connector.connect(host=host,user=user,password=password,port=port,db=db) as conn:
+    cursor=conn.cursor(buffered=True)
+    cursor.execute("create table if not exists(username varchar(50) primary key,password varchar(15),email varchar(60))")
+    cursor.execute("create table if not exists(nid int not null auto_increment primary key,title tinytext,content text,date timestamp default now() on update now(),added_by varchar(50),foreign key(added_by) references users(username))")
+    cursor.close()
+mydb=mysql.connector.connect(host=host,password=password,db=db)
 @app.route('/')
 def index():
     return render_template('title.html')
@@ -160,4 +172,5 @@ def delete(nid):
         return redirect(url_for('allnotes'))
     else:
         return redirect(url_for('login'))
-app.run(use_reloader=True,debug=True)
+if __name__=='__main__':
+    app.run()
