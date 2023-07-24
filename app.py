@@ -9,7 +9,7 @@ from cmail import sendmail
 app=Flask(__name__)
 app.secret_key=secret_key
 app.config['SESSION_TYPE']='filesystem'
-#mydb=mysql.connector.connect(host="localhost",user="root",password="Teja@2003",db="form")
+#mydb=mysql.connector.connect(host="localhost",user="root",password="",db="form")
 user=os.environ.get('RDS_USERNAME')
 db=os.environ.get('RDS_DB_NAME')
 password=os.environ.get('RDS_PASSWORD')
